@@ -6,7 +6,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/cmckee-dev/go-alpha-vantage"
+	av "github.com/kaedwen/go-alpha-vantage"
 )
 
 var (
@@ -23,13 +23,19 @@ func main() {
 
 	wg := &sync.WaitGroup{}
 
-	wg.Add(1)
+	/*wg.Add(1)
 	go func() {
 		defer wg.Done()
 		queryCrypto(client, *cryptoSymbol, *physicalCurrency)
+	}()*/
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		queryQuote(client, *symbol)
 	}()
 
-	for interval := av.TimeIntervalOneMinute; interval <= av.TimeIntervalSixtyMinute; interval++ {
+	/*for interval := av.TimeIntervalOneMinute; interval <= av.TimeIntervalSixtyMinute; interval++ {
 		wg.Add(1)
 		go func(interval av.TimeInterval) {
 			defer wg.Done()
@@ -43,7 +49,7 @@ func main() {
 			defer wg.Done()
 			queryTimeSeries(client, *symbol, series)
 		}(series)
-	}
+	}*/
 
 	wg.Wait()
 }
@@ -73,6 +79,15 @@ func queryCrypto(client *av.Client, digital, physical string) {
 		return
 	}
 	fmt.Printf("%s => %s with %d records\n", digital, physical, len(res))
+}
+
+func queryQuote(client *av.Client, symbol string) {
+	res, err := client.Quote(symbol)
+	if err != nil {
+		ErrorF("error loading quote %s: %v", symbol, err)
+		return
+	}
+	fmt.Printf("%s with price %f\n", symbol, res.Quote.Price)
 }
 
 func ErrorF(format string, args ...interface{}) {

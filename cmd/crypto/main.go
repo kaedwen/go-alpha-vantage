@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cmckee-dev/go-alpha-vantage"
+	av "github.com/kaedwen/go-alpha-vantage"
 )
 
 const (

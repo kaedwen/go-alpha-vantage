@@ -30,6 +30,7 @@ const (
 	valueJson                     = "json"
 	valueDigitcalCurrencyEndpoint = "DIGITAL_CURRENCY_INTRADAY"
 	valueSymbolSearchEndpoint     = "SYMBOL_SEARCH"
+	valueGlobalQuoteEndpoint      = "GLOBAL_QUOTE"
 
 	pathQuery = "query"
 
@@ -183,4 +184,30 @@ func (c *Client) SymbolSearch(keywords string) (*SymbolMatches, error) {
 	json.Unmarshal(body, &matches)
 
 	return matches, nil
+}
+
+func (c *Client) Quote(symbol string) (*GlobalQuote, error) {
+	endpoint := c.buildRequestPath(map[string]string{
+		queryEndpoint: valueGlobalQuoteEndpoint,
+		queryDataType: valueJson,
+		querySymbol:   symbol,
+	})
+
+	response, err := c.conn.Request(endpoint)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var quote *GlobalQuote
+	json.Unmarshal(body, &quote)
+
+	return quote, nil
 }
